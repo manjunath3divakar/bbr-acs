@@ -1,0 +1,33 @@
+From 6d02301aed87fc41f1dbbdd6156029010ef098ae Mon Sep 17 00:00:00 2001
+From: edhay <edhaya.chandran@arm.com>
+Date: Wed, 17 Sep 2025 03:43:50 +0530
+Subject: [PATCH] Disable BBTestGetImageInfoConformanceTestCheckpoint4 test
+
+This test is disabled due to a clarification pending in
+UEFI Specification.
+The test causes synchronous exception in some environment
+
+Please see issue https://github.com/tianocore/edk2-test/issues/297
+for more details.
+---
+ .../BlackBoxTest/FirmwareManagementBBTestConformance.c        | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/uefi-sct/SctPkg/TestCase/UEFI/EFI/Protocol/FirmwareManagement/BlackBoxTest/FirmwareManagementBBTestConformance.c b/uefi-sct/SctPkg/TestCase/UEFI/EFI/Protocol/FirmwareManagement/BlackBoxTest/FirmwareManagementBBTestConformance.c
+index 550d9042..914a4163 100644
+--- a/uefi-sct/SctPkg/TestCase/UEFI/EFI/Protocol/FirmwareManagement/BlackBoxTest/FirmwareManagementBBTestConformance.c
++++ b/uefi-sct/SctPkg/TestCase/UEFI/EFI/Protocol/FirmwareManagement/BlackBoxTest/FirmwareManagementBBTestConformance.c
+@@ -606,7 +606,9 @@ BBTestGetImageInfoConformanceTest (
+   BBTestGetImageInfoConformanceTestCheckpoint1 (StandardLib, FirmwareManagement);
+   BBTestGetImageInfoConformanceTestCheckpoint2 (StandardLib, FirmwareManagement);
+   BBTestGetImageInfoConformanceTestCheckpoint3 (StandardLib, FirmwareManagement);
+-  BBTestGetImageInfoConformanceTestCheckpoint4 (StandardLib, FirmwareManagement);
++  //This test is temporarily disabled due to clarification pending in the 
++  //UEFI Specification
++  //BBTestGetImageInfoConformanceTestCheckpoint4 (StandardLib, FirmwareManagement);
+   BBTestGetImageInfoConformanceTestCheckpoint5 (StandardLib, FirmwareManagement);
+   BBTestGetImageInfoConformanceTestCheckpoint6 (StandardLib, FirmwareManagement);
+   BBTestGetImageInfoConformanceTestCheckpoint7 (StandardLib, FirmwareManagement);
+-- 
+2.43.0
+

@@ -158,6 +158,14 @@ do_build()
                 exit
             fi
         fi
+        if git apply --check $TOP_DIR/patches/0001-Disable-BBTestGetImageInfoConformanceTestCheckpoint4.patch; then
+                echo "Applying edk2-test BBTestGetImageInfoConformanceTestCheckpoint4 patch..."
+                git apply --ignore-whitespace --ignore-space-change $TOP_DIR/patches/0001-Disable-BBTestGetImageInfoConformanceTestCheckpoint4.patch
+            else
+                echo  "Error while applying edk2-test BBTestGetImageInfoConformanceTestCheckpoint4 patch..."
+                exit
+            fi
+        fi
     fi
 
     #Common - SCRT
