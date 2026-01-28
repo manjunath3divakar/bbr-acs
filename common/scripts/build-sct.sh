@@ -212,6 +212,16 @@ do_build()
         fi
     fi
 
+    # Apply SCT patch (EBBR only) - applies in edk2-test repo (current dir is $TOP_DIR/$SCT_PATH)
+    if [[ "$BUILD_PLAT" == "EBBR" ]]; then
+            if git apply --check "$BBR_DIR/ebbr/patches/ebbr_getnextmonotoniccount_minimal.patch"; then
+                    echo "Applying EBBR SCT GetNextMonotonicCount patch..."
+                    git apply --ignore-whitespace --ignore-space-change $BBR_DIR/ebbr/patches/ebbr_getnextmonotoniccount_minimal.patch
+            else
+                    echo "Error while applying EBBR SCT GetNextMonotonicCount patch..."
+                    exit
+            fi
+
     # Apply BBSR patch for Systemready
     if [[ $BUILD_TYPE != S ]]; then
         if git apply --check $BBR_DIR/bbsr/patches/0001-BBSR-Patch-for-UEFI-SCT-Build.patch; then
