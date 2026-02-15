@@ -149,11 +149,11 @@ FWTS is executed in SBBR mode using --sbbr together with UEFI variable stress op
 <tr><td>79. Test _S2D (S2 Device State)</td></tr>
 <tr><td>80. Test _S3D (S3 Device State)</td></tr>
 <tr><td>81. Test _S4D (S4 Device State)</td></tr>
-<tr><td>82. Test _S0W (S0 System State)</td></tr>
-<tr><td>83. Test _S1W (S1 System State)</td></tr>
-<tr><td>84. Test _S2W (S2 System State)</td></tr>
-<tr><td>85. Test _S3W (S3 System State)</td></tr>
-<tr><td>86. Test _S4W (S4 System State)</td></tr>
+<tr><td>82. Test _S0W (S0 Device Wake State)</td></tr>
+<tr><td>83. Test _S1W (S1 Device Wake State)</td></tr>
+<tr><td>84. Test _S2W (S2 Device Wake State)</td></tr>
+<tr><td>85. Test _S3W (S3 Device Wake State)</td></tr>
+<tr><td>86. Test _S4W (S4 Device Wake State)</td></tr>
 <tr><td>87. Test _RST (Device Reset)</td></tr>
 <tr><td>88. Test _PRR (Power Resource for Reset)</td></tr>
 <tr><td>89. Test _DSC (Deepest State for Configuration)</td></tr>
@@ -302,14 +302,6 @@ FWTS is executed in SBBR mode using --sbbr together with UEFI variable stress op
 <tr><td>232. Test _IFT (IPMI Interface Type)</td></tr>
 <tr><td>233. Test _SRV (IPMI Interface Revision)</td></tr>
 
-<tr><td rowspan=7 colspan=1>smccc</td><td>1. Test PCI_VERSION</td></tr>
-<tr><td>2. Test PCI_FEATURES</td></tr>
-<tr><td>3. Test PCI_GET_SEG_INFO</td></tr>
-<tr><td>4. Test ARM_SMCCC_VERSION</td></tr>
-<tr><td>5. Test ARM_SMCCC_ARCH_FEATURES</td></tr>
-<tr><td>6. Test ARM_SMCCC_ARCH_SOC_ID for Soc_ID_type 0</td></tr>
-<tr><td>7. Test ARM_SMCCC_ARCH_SOC_ID for Soc_ID_type 1</td></tr>
-
 <tr><td rowspan=1 colspan=1>mpam</td><td>1. Validate MPAM table</td></tr>
 
 <tr><td rowspan=1 colspan=1>nfit</td><td>1. Validate NFIT table</td></tr>
@@ -327,6 +319,14 @@ FWTS is executed in SBBR mode using --sbbr together with UEFI variable stress op
 <tr><td rowspan=1 colspan=1>sdei</td><td>1. Validate SDEI table</td></tr>
 
 <tr><td rowspan=1 colspan=1>slit</td><td>1. SLIT System Locality Distance Information test</td></tr>
+
+<tr><td rowspan=7 colspan=1>smccc</td><td>1. Test PCI_VERSION</td></tr>
+<tr><td>2. Test PCI_FEATURES</td></tr>
+<tr><td>3. Test PCI_GET_SEG_INFO</td></tr>
+<tr><td>4. Test ARM_SMCCC_VERSION</td></tr>
+<tr><td>5. Test ARM_SMCCC_ARCH_FEATURES</td></tr>
+<tr><td>6. Test ARM_SMCCC_ARCH_SOC_ID for Soc_ID_type 0</td></tr>
+<tr><td>7. Test ARM_SMCCC_ARCH_SOC_ID for Soc_ID_type 1</td></tr>
 
 <tr><td rowspan=3 colspan=1>spcr</td><td>1. SPCR Serial Port Console Redirection Table test</td></tr>
 <tr><td>2. SPCR Revision Test</td></tr>
