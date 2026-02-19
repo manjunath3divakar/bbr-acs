@@ -1,0 +1,390 @@
+diff --git a/uefi-sct/SctPkg/TestCase/UEFI/EFI/BootServices/MiscBootServices/BlackBoxTest/MiscBootServicesBBTestFunction.c b/uefi-sct/SctPkg/TestCase/UEFI/EFI/BootServices/MiscBootServices/BlackBoxTest/MiscBootServicesBBTestFunction.c
+index 9524052a..0ff18ff8 100644
+--- a/uefi-sct/SctPkg/TestCase/UEFI/EFI/BootServices/MiscBootServices/BlackBoxTest/MiscBootServicesBBTestFunction.c
++++ b/uefi-sct/SctPkg/TestCase/UEFI/EFI/BootServices/MiscBootServices/BlackBoxTest/MiscBootServicesBBTestFunction.c
+@@ -1483,6 +1483,10 @@ BBTestGetNextMonotonicCountInterfaceTest (
+   UINT8                                Buffer[1024];
+   RESET_DATA                           *ResetData;
+   UINTN                                Size;
++  EFI_STATUS                           Status1;
++  EFI_STATUS                           Status2;
++  BOOLEAN                              SeenSuccess;
++  BOOLEAN                              SeenDeviceError;
+ 
+   //
+   // Get the Standard Library Interface
+@@ -1540,23 +1544,35 @@ BBTestGetNextMonotonicCountInterfaceTest (
+     if (ResetData->TplIndex < TPL_ARRAY_SIZE) {
+       Index = ResetData->TplIndex;
+       Count = ResetData->Count;
++      SeenSuccess = FALSE;
++      SeenDeviceError = FALSE;
+       goto GetNextMonotonicCountStep2;
+     }
+   } else {
+     return EFI_LOAD_ERROR;
+   }
++  SeenSuccess = FALSE;
++  SeenDeviceError = FALSE;
+ 
+   for (Index = 0; Index < TPL_ARRAY_SIZE; Index++) {
+     //
+     // 4.5.2.1  GetNextMonotonicCount must succeed with valid parameters.
+     //
+     OldTpl = gtBS->RaiseTPL (TplArray[Index]);
+-    Status = gtBS->GetNextMonotonicCount (
++    Status1 = gtBS->GetNextMonotonicCount (
+                      &Count
+                      );
+     gtBS->RestoreTPL (OldTpl);
+-    if (Status == EFI_SUCCESS) {
++    if (Status1 == EFI_SUCCESS) {
++      SeenSuccess = TRUE;
++    } else if (Status1 == EFI_DEVICE_ERROR) {
++      SeenDeviceError = TRUE;
++    }
++
++    if (Status1 == EFI_SUCCESS) {
+       AssertionType = EFI_TEST_ASSERTION_PASSED;
++    } else if (Status1 == EFI_DEVICE_ERROR) {
++      AssertionType = EFI_TEST_ASSERTION_WARNING;
+     } else {
+       AssertionType = EFI_TEST_ASSERTION_FAILED;
+     }
+@@ -1572,16 +1588,24 @@ BBTestGetNextMonotonicCountInterfaceTest (
+                    L"%a:%d:Status - %r, TPL - %d",
+                    __FILE__,
+                    (UINTN)__LINE__,
+-                   Status,
++                   Status1,
+                    TplArray[Index]
+                    );
+     OldTpl = gtBS->RaiseTPL (TplArray[Index]);
+-    Status = gtBS->GetNextMonotonicCount (
++    Status2 = gtBS->GetNextMonotonicCount (
+                      &Count2
+                      );
+     gtBS->RestoreTPL (OldTpl);
+-    if (Status == EFI_SUCCESS) {
++    if (Status2 == EFI_SUCCESS) {
++      SeenSuccess = TRUE;
++    } else if (Status2 == EFI_DEVICE_ERROR) {
++      SeenDeviceError = TRUE;
++    }
++
++    if (Status2 == EFI_SUCCESS) {
+       AssertionType = EFI_TEST_ASSERTION_PASSED;
++    } else if (Status2 == EFI_DEVICE_ERROR) {
++      AssertionType = EFI_TEST_ASSERTION_WARNING;
+     } else {
+       AssertionType = EFI_TEST_ASSERTION_FAILED;
+     }
+@@ -1597,11 +1621,17 @@ BBTestGetNextMonotonicCountInterfaceTest (
+                    L"%a:%d:Status - %r, TPL - %d",
+                    __FILE__,
+                    (UINTN)__LINE__,
+-                   Status,
++                   Status2,
+                    TplArray[Index]
+                    );
+-    if (Count2 == Count + 1) {
+-      AssertionType = EFI_TEST_ASSERTION_PASSED;
++    if ((Status1 == EFI_SUCCESS) && (Status2 == EFI_SUCCESS)) {
++      if (Count2 == Count + 1) {
++        AssertionType = EFI_TEST_ASSERTION_PASSED;
++      } else {
++        AssertionType = EFI_TEST_ASSERTION_FAILED;
++      }
++    } else if ((Status1 == EFI_DEVICE_ERROR) && (Status2 == EFI_DEVICE_ERROR)) {
++      AssertionType = EFI_TEST_ASSERTION_WARNING;
+     } else {
+       AssertionType = EFI_TEST_ASSERTION_FAILED;
+     }
+@@ -1614,14 +1644,30 @@ BBTestGetNextMonotonicCountInterfaceTest (
+                     gMiscBootServicesBBTestFunctionAssertionGuid049: \
+                     gMiscBootServicesBBTestFunctionAssertionGuid050),
+                    L"BS.GetNextMonotonicCount - Count + 1 == Count2",
+-                   L"%a:%d:Count - %lx, Count2 - %lx, TPL - %d",
++                   L"%a:%d:Count - %lx, Count2 - %lx, Status1 - %r, Status2 - %r, TPL - %d",
+                    __FILE__,
+                    (UINTN)__LINE__,
+                    Count,
+                    Count2,
++		   Status1,
++		   Status2,
+                    TplArray[Index]
+                    );
+ 
++    if (SeenSuccess && SeenDeviceError) {
++      StandardLib->RecordAssertion (
++                 StandardLib,
++                 EFI_TEST_ASSERTION_FAILED,
++                 gTestGenericFailureGuid,
++                 L"BS.GetNextMonotonicCount - inconsistent behavior (mixed EFI_SUCCESS and EFI_DEVICE_ERROR)",
++                 L"%a:%d:TPL - %d",
++                 __FILE__,
++                 (UINTN)__LINE__,
++                 TplArray[Index]
++                 );
++      continue;
++    }
++
+     //
+     // 4.5.2.2  GetNextMonotonicCount after reset.
+     //
+@@ -1630,11 +1676,31 @@ BBTestGetNextMonotonicCountInterfaceTest (
+                      &Count
+                      );
+     gtBS->RestoreTPL (OldTpl);
++    if (Status == EFI_SUCCESS) {
++      SeenSuccess = TRUE;
++    } else if (Status == EFI_DEVICE_ERROR) {
++      SeenDeviceError = TRUE;
++    }
+     if (Status == EFI_SUCCESS) {
+       AssertionType = EFI_TEST_ASSERTION_PASSED;
++    } else if (Status == EFI_DEVICE_ERROR) {
++      AssertionType = EFI_TEST_ASSERTION_WARNING;
+     } else {
+       AssertionType = EFI_TEST_ASSERTION_FAILED;
+     }
++    if (SeenSuccess && SeenDeviceError) {
++      StandardLib->RecordAssertion (
++                   StandardLib,
++                   EFI_TEST_ASSERTION_FAILED,
++                   gTestGenericFailureGuid,
++                   L"BS.GetNextMonotonicCount - inconsistent behavior (mixed EFI_SUCCESS and EFI_DEVICE_ERROR)",
++                   L"%a:%d:TPL - %d",
++                   __FILE__,
++                   (UINTN)__LINE__,
++                   TplArray[Index]
++                   );
++      continue;
++    }
+     StandardLib->RecordAssertion (
+                    StandardLib,
+                    AssertionType,
+@@ -1650,6 +1716,12 @@ BBTestGetNextMonotonicCountInterfaceTest (
+                    Status,
+                    TplArray[Index]
+                    );
++    if (Status == EFI_DEVICE_ERROR) {
++      continue;
++    }
++    if (Status != EFI_SUCCESS) {
++      continue;
++    }
+     //
+     //  save the high 32 bit and reset system
+     //
+@@ -1691,11 +1763,31 @@ GetNextMonotonicCountStep2:
+                      &Count2
+                      );
+     gtBS->RestoreTPL (OldTpl);
++    if (Status == EFI_SUCCESS) {
++      SeenSuccess = TRUE;
++    } else if (Status == EFI_DEVICE_ERROR) {
++      SeenDeviceError = TRUE;
++    }
+     if (Status == EFI_SUCCESS) {
+       AssertionType = EFI_TEST_ASSERTION_PASSED;
++    } else if (Status == EFI_DEVICE_ERROR) {
++      AssertionType = EFI_TEST_ASSERTION_WARNING;
+     } else {
+       AssertionType = EFI_TEST_ASSERTION_FAILED;
+     }
++    if (SeenSuccess && SeenDeviceError) {
++      StandardLib->RecordAssertion (
++                   StandardLib,
++                   EFI_TEST_ASSERTION_FAILED,
++                   gTestGenericFailureGuid,
++                   L"BS.GetNextMonotonicCount - inconsistent behavior (mixed EFI_SUCCESS and EFI_DEVICE_ERROR)",
++                   L"%a:%d:TPL - %d",
++                   __FILE__,
++                   (UINTN)__LINE__,
++                   TplArray[Index]
++                   );
++      continue;
++    }
+     StandardLib->RecordAssertion (
+                    StandardLib,
+                    AssertionType,
+@@ -1711,6 +1803,9 @@ GetNextMonotonicCountStep2:
+                    Status,
+                    TplArray[Index]
+                    );
++    if (Status != EFI_SUCCESS) {
++      continue;
++    }
+ 
+     //The new count of upper 32 bits must be atleast 1 more than the old count.
+     //Pass case: new count is equal to old count + 1
+diff --git a/uefi-sct/SctPkg/TestCase/UEFI/EFI/BootServices/MiscBootServices/BlackBoxTest/MiscBootServicesBBTestStress.c b/uefi-sct/SctPkg/TestCase/UEFI/EFI/BootServices/MiscBootServices/BlackBoxTest/MiscBootServicesBBTestStress.c
+index e9d9d471..9b809215 100644
+--- a/uefi-sct/SctPkg/TestCase/UEFI/EFI/BootServices/MiscBootServices/BlackBoxTest/MiscBootServicesBBTestStress.c
++++ b/uefi-sct/SctPkg/TestCase/UEFI/EFI/BootServices/MiscBootServices/BlackBoxTest/MiscBootServicesBBTestStress.c
+@@ -513,6 +513,10 @@ BBTestGetNextMonotonicCountStressTest (
+   UINT8                                ResetBuffer[1024];
+   RESET_DATA                           *ResetData;
+   UINTN                                Size;
++  EFI_STATUS                           Status1;
++  EFI_STATUS                           Status2;
++  BOOLEAN                              SeenSuccess;
++  BOOLEAN                              SeenDeviceError;
+ 
+   //
+   // Get the Standard Library Interface
+@@ -570,23 +574,31 @@ BBTestGetNextMonotonicCountStressTest (
+     if (ResetData->TplIndex < TPL_ARRAY_SIZE) {
+       Index = ResetData->TplIndex;
+       OldCount = ResetData->Count;
++      SeenSuccess = FALSE;
++      SeenDeviceError = FALSE;
+       goto StressTestStep2;
+     }
+   } else {
+     return EFI_LOAD_ERROR;
+   }
++  SeenSuccess = FALSE;
++  SeenDeviceError = FALSE;
+ 
+   for (Index = 0; Index < TPL_ARRAY_SIZE; Index++) {
+     //
+     // 5.5.2.1  Stress test for GetNextMonotonicCount.
+     //
+     OldTpl = gtBS->RaiseTPL (TplArray[Index]);
+-    Status = gtBS->GetNextMonotonicCount (
++    Status1 = gtBS->GetNextMonotonicCount (
+                      &OldCount
+                      );
+     gtBS->RestoreTPL (OldTpl);
+-    if (Status == EFI_SUCCESS) {
++    if (Status1 == EFI_SUCCESS) {
++      SeenSuccess = TRUE;
+       AssertionType = EFI_TEST_ASSERTION_PASSED;
++    } else if (Status1 == EFI_DEVICE_ERROR) {
++      SeenDeviceError = TRUE;
++      AssertionType = EFI_TEST_ASSERTION_WARNING;
+     } else {
+       AssertionType = EFI_TEST_ASSERTION_FAILED;
+     }
+@@ -598,17 +610,24 @@ BBTestGetNextMonotonicCountStressTest (
+                    L"%a:%d:Status - %r, TPL - %d",
+                    __FILE__,
+                    (UINTN)__LINE__,
+-                   Status,
++                   Status1,
+                    TplArray[Index]
+                    );
++    if (Status1 == EFI_DEVICE_ERROR) {
++      continue;
++    }
+     for (RepeatTimes = 0; RepeatTimes < MAX_REPEAT_TIMES; RepeatTimes++) {
+       OldTpl = gtBS->RaiseTPL (TplArray[Index]);
+-      Status = gtBS->GetNextMonotonicCount (
++      Status2 = gtBS->GetNextMonotonicCount (
+                        &Count
+                        );
+       gtBS->RestoreTPL (OldTpl);
+-      if (Status == EFI_SUCCESS) {
++      if (Status2 == EFI_SUCCESS) {
++        SeenSuccess = TRUE;
+         AssertionType = EFI_TEST_ASSERTION_PASSED;
++      } else if (Status2 == EFI_DEVICE_ERROR) {
++        SeenDeviceError = TRUE;
++        AssertionType = EFI_TEST_ASSERTION_WARNING;
+       } else {
+         AssertionType = EFI_TEST_ASSERTION_FAILED;
+       }
+@@ -620,10 +639,14 @@ BBTestGetNextMonotonicCountStressTest (
+                      L"%a:%d:Status - %r, TPL - %d, Times - %d",
+                      __FILE__,
+                      (UINTN)__LINE__,
+-                     Status,
++                     Status2,
+                      TplArray[Index],
+                      RepeatTimes
+                      );
++      if (Status2 != EFI_SUCCESS) {
++        // Can't validate monotonic progression if the call failed.
++        break;
++      }
+       if (Count == OldCount + 1) {
+         AssertionType = EFI_TEST_ASSERTION_PASSED;
+       } else {
+@@ -634,10 +657,9 @@ BBTestGetNextMonotonicCountStressTest (
+                      AssertionType,
+                      gMiscBootServicesCombinationTestAssertionGuid009,
+                      L"BS.GetNextMonotonicCount - Count == OldCount + 1",
+-                     L"%a:%d:Status - %r, TPL - %d, Count - %lx, OldCount - %lx, Times - %d",
++		     L"%a:%d:TPL - %d, Count - %lx, OldCount - %lx, Times - %d",
+                      __FILE__,
+                      (UINTN)__LINE__,
+-                     Status,
+                      TplArray[Index],
+                      Count,
+                      OldCount,
+@@ -645,6 +667,20 @@ BBTestGetNextMonotonicCountStressTest (
+                      );
+       OldCount = Count;
+     }
++    // If we ever observe both EFI_SUCCESS and EFI_DEVICE_ERROR, behavior is inconsistent.
++    if (SeenSuccess && SeenDeviceError) {
++      StandardLib->RecordAssertion (
++                   StandardLib,
++                   EFI_TEST_ASSERTION_FAILED,
++                   gTestGenericFailureGuid,
++                   L"BS.GetNextMonotonicCount - inconsistent behavior (mixed EFI_SUCCESS and EFI_DEVICE_ERROR)",
++                   L"%a:%d:TPL - %d",
++                   __FILE__,
++                   (UINTN)__LINE__,
++                   TplArray[Index]
++                   );
++      continue;
++    }
+ 
+     //
+     //  save the high 32 bit and reset system
+@@ -683,12 +719,16 @@ BBTestGetNextMonotonicCountStressTest (
+ StressTestStep2:
+ 
+     OldTpl = gtBS->RaiseTPL (TplArray[Index]);
+-    Status = gtBS->GetNextMonotonicCount (
++    Status2 = gtBS->GetNextMonotonicCount (
+                      &Count
+                      );
+     gtBS->RestoreTPL (OldTpl);
+-    if (Status == EFI_SUCCESS) {
++    if (Status2 == EFI_SUCCESS) {
++      SeenSuccess = TRUE;
+       AssertionType = EFI_TEST_ASSERTION_PASSED;
++    } else if (Status2 == EFI_DEVICE_ERROR) {
++      SeenDeviceError = TRUE;
++      AssertionType = EFI_TEST_ASSERTION_WARNING;
+     } else {
+       AssertionType = EFI_TEST_ASSERTION_FAILED;
+     }
+@@ -700,9 +740,15 @@ StressTestStep2:
+                    L"%a:%d:Status - %r, TPL - %d",
+                    __FILE__,
+                    (UINTN)__LINE__,
+-                   Status,
++                   Status2,
+                    TplArray[Index]
+                    );
++    if (Status2 == EFI_DEVICE_ERROR) {
++      continue;
++    }
++    if (Status2 != EFI_SUCCESS) {
++      continue;
++    }
+ 
+     if (SctRShiftU64 (Count, 32) == SctRShiftU64 (OldCount, 32) + 1) {
+       AssertionType = EFI_TEST_ASSERTION_PASSED;
+@@ -725,4 +771,4 @@ StressTestStep2:
+   }
+ 
+   return EFI_SUCCESS;
+-}
+\ No newline at end of file
++}
