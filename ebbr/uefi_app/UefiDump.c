@@ -351,31 +351,6 @@ WriteBinaryFile(
 }
 
 STATIC
-CONST CHAR8 *
-GetEbbrProfileVersionString (
-  IN CONST EFI_GUID  *Guid
-  )
-{
-  STATIC CONST EFI_GUID  Ebbr21Guid = { 0xcce33c35, 0x74ac, 0x4087, { 0xbc, 0xe7, 0x8b, 0x29, 0xb0, 0x2e, 0xeb, 0x27 } };
-  STATIC CONST EFI_GUID  Ebbr22Guid = { 0x9073eed4, 0xe50d, 0x11ee, { 0xb8, 0xb0, 0x8b, 0x68, 0xda, 0x62, 0xfc, 0x80 } };
-  STATIC CONST EFI_GUID  Ebbr23Guid = { 0x7721fc77, 0xa724, 0x11ef, { 0x8e, 0xaa, 0xf7, 0xc9, 0xb1, 0x94, 0xba, 0x75 } };
-
-  if (CompareGuid (Guid, &Ebbr21Guid)) {
-    return "2.1";
-  }
-
-  if (CompareGuid (Guid, &Ebbr22Guid)) {
-    return "2.2";
-  }
-
-  if (CompareGuid (Guid, &Ebbr23Guid)) {
-    return "2.3";
-  }
-
-  return NULL;
-}
-
-STATIC
 EFI_STATUS
 WriteHexDumpFile(
   IN EFI_HANDLE ImageHandle,
@@ -402,7 +377,7 @@ WriteHexDumpFile(
   }
 
   MaxGuidCount = (BufferSize >= 4) ? ((BufferSize - 4) / sizeof (EFI_GUID)) : 0;
-  EstimatedSize = ((((BufferSize + 15) / 16) + 1) * 80) + 128 + (MaxGuidCount * 280) + 1;
+  EstimatedSize = ((((BufferSize + 15) / 16) + 1) * 80) + 128 + (MaxGuidCount * 200) + 1;
   Status = gBS->AllocatePool(EfiBootServicesData, EstimatedSize, (VOID **)&Text);
   if (EFI_ERROR(Status)) {
     return Status;
@@ -468,21 +443,25 @@ WriteHexDumpFile(
   Cursor += AsciiSPrint(Cursor, Remaining, "NumberOfProfiles: %u\n", (UINT32)NumberOfProfiles);
 
   Remaining = EstimatedSize - (UINTN)(Cursor - Text);
-  Cursor += AsciiSPrint(Cursor, Remaining, "INFO: Extracted %u GUID(s) from EBBR profile table\n", (UINT32)GuidCount);
+  Cursor += AsciiSPrint (
+              Cursor,
+              Remaining,
+              "INFO: Extracted %u GUID(s) from EBBR profile table\n",
+              (UINT32)GuidCount
+              );
 
   for (Index = 0; Index < GuidCount; Index++) {
-    EFI_GUID    GuidValue;
-    CONST CHAR8  *VersionString;
-    UINTN       GuidOffset;
+    EFI_GUID  GuidValue;
+    UINTN     GuidOffset;
 
     GuidOffset = 4 + (Index * sizeof (EFI_GUID));
     CopyMem (&GuidValue, Data + GuidOffset, sizeof (GuidValue));
 
     Remaining = EstimatedSize - (UINTN)(Cursor - Text);
-    Cursor += AsciiSPrint(
+    Cursor += AsciiSPrint (
                 Cursor,
                 Remaining,
-                "INFO: EBBR profile table GUID[%u] : { 0x%08x, 0x%04x, 0x%04x, { 0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x%02x } }\n",
+                "INFO: EBBR profile table GUID[%u] : %08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X\n",
                 (UINT32)Index,
                 GuidValue.Data1,
                 GuidValue.Data2,
@@ -496,17 +475,6 @@ WriteHexDumpFile(
                 GuidValue.Data4[6],
                 GuidValue.Data4[7]
                 );
-
-    VersionString = GetEbbrProfileVersionString (&GuidValue);
-    if (VersionString != NULL) {
-      Remaining = EstimatedSize - (UINTN)(Cursor - Text);
-      Cursor += AsciiSPrint(
-                  Cursor,
-                  Remaining,
-                  "INFO: EFI Conformance Profile Table indicates platform compliance with EBBR %a\n",
-                  VersionString
-                  );
-    }
   }
 
   Status = WriteBinaryFile(
