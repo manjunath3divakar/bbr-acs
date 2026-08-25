@@ -1,0 +1,48 @@
+## @file
+#  Module definition for the shared AArch64 64 KiB page-attribute checker.
+#
+#  Copyright (c) 2026, Arm Ltd. All rights reserved.<BR>
+#
+#  This program and the accompanying materials are licensed and made available
+#  under the terms and conditions of the BSD License which accompanies this
+#  distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = Runtime64KiBPageAttributeCheck
+  FILE_GUID                      = 20c8279f-3fd2-4a45-b1d7-8e4e3282b91d
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 0.5
+  ENTRY_POINT                    = Runtime64KCheckEntryPoint
+
+[Sources.AARCH64]
+  Runtime64KCheck.c
+  Runtime64KCheck.h
+  AArch64PageTable.c
+  AArch64PageTable.h
+  AArch64Registers.S
+
+[Packages]
+  MdePkg/MdePkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  UefiLib
+  UefiBootServicesTableLib
+  BaseLib
+  BaseMemoryLib
+  MemoryAllocationLib
+  PrintLib
+
+[Protocols]
+  gEfiLoadedImageProtocolGuid
+  gEfiSimpleFileSystemProtocolGuid
+
+[Guids]
+  gEfiFileInfoGuid
