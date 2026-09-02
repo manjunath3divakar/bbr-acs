@@ -158,20 +158,16 @@ do_build()
     source $TOP_DIR/$UEFI_PATH/edksetup.sh
     make -C $TOP_DIR/$UEFI_PATH/BaseTools
 
-    #Copy over extra files needed for SBBR tests
-    generic_test_dir="uefi-sct/SctPkg/TestCase/UEFI/EFI/Generic"
+    # Copy BBR/SBBR build files.
     bbr_uefi_dir="uefi-sct/SctPkg/UEFI"
-
     sctpkg_efi_dir="uefi-sct/SctPkg/TestCase/UEFI/EFI"
-    cp -r "$SBBR_TEST_DIR/SbbrBootServices" \
-        "$sctpkg_efi_dir/BootServices/"
+    generic_test_dir="$sctpkg_efi_dir/Generic"
+
+    # SBBRRuntimeServices is still sourced from bbr-acs.
+    # Other SBBR tests are now present in edk2-test.
     cp -r "$SBBR_TEST_DIR/SBBRRuntimeServices" \
         "$sctpkg_efi_dir/RuntimeServices/"
-    cp -r \
-        "$SBBR_TEST_DIR/SbbrEfiSpecVerLvl" \
-        "$SBBR_TEST_DIR/SbbrRequiredUefiProtocols" \
-        "$SBBR_TEST_DIR/SbbrSysEnvConfig" \
-        "$generic_test_dir/"
+
     cp "$SBBR_TEST_DIR/BBR_SCT.dsc" "$bbr_uefi_dir/"
     cp "$SBBR_TEST_DIR/build_bbr.sh" "uefi-sct/SctPkg/"
 
@@ -179,15 +175,6 @@ do_build()
         mkdir -p "$generic_test_dir/EfiCompliant"
         cp -r "$EBBR_TEST_DIR/EfiEbbrProfileTableTest" \
             "$generic_test_dir/EfiCompliant/"
-    fi
-
-    # copy BBSR SCT tests to edk2-test
-    if [[ $BUILD_TYPE != S ]]; then
-        sctpkg_runtime_dir="$sctpkg_efi_dir/RuntimeServices"
-        cp -r "$BBSR_TEST_DIR/BBSRVariableSizeTest" \
-            "$sctpkg_runtime_dir"
-        cp -r "$BBSR_TEST_DIR/PlatformResetAttackMitigationPsciTest" \
-            "$generic_test_dir/"
     fi
 
     #Startup/runtime files.

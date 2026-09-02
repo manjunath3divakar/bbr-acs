@@ -7,13 +7,11 @@ index c42e8904..28c3a438 100755
      cp $ProcessorType/MiscBootServicesBBTest.efi               $Framework/Test/ > NUL
  
 +    # BBSR
-+    cp $ProcessorType/BBSRVariableSizeTest.efi                 $Framework/Test/ > NUL
 +    cp $ProcessorType/TCGMemoryOverwriteRequestBBTest.efi      $Framework/Test/ > NUL
 +    cp $ProcessorType/TCG2ProtocolBBTest.efi                   $Framework/Test/ > NUL
 +  if [ $SECUREBOOT_ENABLE -eq 1 ]; then
 +    cp $ProcessorType/SecureBootBBTest.efi                     $Framework/Test/ > NUL
 +  fi
-+    cp $ProcessorType/PlatformResetAttackMitigationPsciTest.efi $Framework/Test/ > NUL
 +
      cp $ProcessorType/VariableServicesBBTest.efi               $Framework/Test/ > NUL
      cp $ProcessorType/TimeServicesBBTest.efi                   $Framework/Test/ > NUL
@@ -26,25 +24,3 @@ index c42e8904..28c3a438 100755
 +    CopyDependency SecureBoot
 +  fi
  fi
-diff --git a/uefi-sct/SctPkg/Config/Data/Category.ini b/uefi-sct/SctPkg/Config/Data/Category.ini
-index d70c18c5..9228dc0f 100644
---- a/uefi-sct/SctPkg/Config/Data/Category.ini
-+++ b/uefi-sct/SctPkg/Config/Data/Category.ini
-@@ -1081,3 +1081,17 @@ CategoryGuid  = 14BC21EC-6D04-4684-A892-1B465ACAC423
- InterfaceGuid = 71652D04-BF38-434A-BCB8-6547D7FD8384
- Name          = GenericTest\EFICompliantTest\EfiEbbrProfileTableTest
- Description   = Efi EBBR Profile Table Test
-+
-+[Category Data]
-+Revision      = 0x00010000
-+CategoryGuid  = d250c2ca-0fe7-4edf-9319-6eef4f6b0d12
-+InterfaceGuid = AFF115FB-387B-4C18-8C41-6AFC7F03BB90
-+Name          = RuntimeServicesTest\BBSRVariableSizeTest
-+Description   =
-+
-+[Category Data]
-+Revision      = 0x00010000
-+CategoryGuid  = C4567D24-BB60-484E-80EC-A36ACEEA5C43
-+InterfaceGuid = 71652D04-BF38-434A-BCB8-6547D7FD8384
-+Name          = GenericTest\PlatformResetAttackMitigationPsciTest
-+Description   = Check Platform Reset Attack Mitigation Via PSCI

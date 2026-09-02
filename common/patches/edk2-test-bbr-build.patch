@@ -216,49 +216,7 @@ diff --git a/uefi-sct/SctPkg/Config/Data/Category.ini b/uefi-sct/SctPkg/Config/D
 index fcbd220e..ee046b5e 100644
 --- a/uefi-sct/SctPkg/Config/Data/Category.ini
 +++ b/uefi-sct/SctPkg/Config/Data/Category.ini
-@@ -88,6 +88,27 @@ InterfaceGuid = 71652D04-BF38-434A-BCB8-6547D7FD8384
- Name          = GenericTest\FloatingPointABITest
- Description   =
- 
-+[Category Data]
-+Revision      = 0x00010000
-+CategoryGuid  = 6b4d5d18-f55f-4fc5-8496-f10022375c04
-+InterfaceGuid = 71652D04-BF38-434A-BCB8-6547D7FD8384
-+Name          = GenericTest\SbbrRequiredUefiProtocols
-+Description   = Checks that UEFI protocols required by ARM SBBR are present.
-+
-+[Category Data]
-+Revision      = 0x00010000
-+CategoryGuid  = d6e40d12-7a51-4454-b4fd-4c93887ed6cf
-+InterfaceGuid = 71652D04-BF38-434A-BCB8-6547D7FD8384
-+Name          = GenericTest\SbbrEfiSpecVerLvl
-+Description   = Check the UEFI Specification Version Level to make sure it conforms to ARM SBBR.
-+
-+[Category Data]
-+Revision      = 0x00010000
-+CategoryGuid  = D84A6430-99F5-4660-8454-6E4C896A7E51
-+InterfaceGuid = 71652D04-BF38-434a-BCB8-6547D7FD8384
-+Name          = GenericTest\SbbrSysEnvConfig
-+Description   = SBBR UEFI System Environment and Configuration Tests
-+
- [Category Data]
- Revision      = 0x00010000
- CategoryGuid  = E9EF7553-F833-4E56-96E8-38AE679523CC
-@@ -130,6 +151,13 @@ InterfaceGuid = E9EF7553-F833-4E56-96E8-38AE679523CC
- Name          = BootServicesTest\MiscBootServicesTest
- Description   =
- 
-+[Category Data]
-+Revision      = 0x00010000
-+CategoryGuid  = 8dafd7a7-44d0-4cf4-9d28-9f87080fc091
-+InterfaceGuid = E9EF7553-F833-4E56-96E8-38AE679523CC
-+Name          = BootServicesTest\SbbrBootServices
-+Description   = Tests SBBR boot services requirements.
-+
- [Category Data]
- Revision      = 0x00010000
- CategoryGuid  = AFF115FB-387B-4C18-8C41-6AFC7F03BB90
-@@ -172,6 +200,13 @@ InterfaceGuid = AFF115FB-387B-4C18-8C41-6AFC7F03BB90
+@@ -172,6 +172,13 @@ InterfaceGuid = AFF115FB-387B-4C18-8C41-6AFC7F03BB90
  Name          = RuntimeServicesTest\TCGMemoryOverwriteRequestTest
  Description   = Test TCG Platform Reset Attack Mitigation EFI variables
  
@@ -272,26 +230,7 @@ index fcbd220e..ee046b5e 100644
  [Category Data]
  Revision      = 0x00010000
  CategoryGuid  = 5B1B31A1-9562-11D2-8E3F-00A0C969723B
-@@ -1026,12 +1061,12 @@ InterfaceGuid = 8D59D32B-C655-4AE9-9B15-F25904992A43
- Name          = IHV\ConsoleSupportTest\AbsolutePointerProtocolTest
- Description   = Absolute Pointer Protocol Test on IHV Drivers
- 
--[Category Data]
--Revision      = 0x00010000
--CategoryGuid  = CCD15FEC-6F73-4EEC-8395-3E69E4B940BF
--InterfaceGuid = CCD15FEC-6F73-4EEC-8395-3E69E4B940BF
--Name          = RiscvBootProtocolTest
--Description   = RISC-V Boot Protocol Test
-+[Category Data]
-+Revision      = 0x00010000
-+CategoryGuid  = CCD15FEC-6F73-4EEC-8395-3E69E4B940BF
-+InterfaceGuid = CCD15FEC-6F73-4EEC-8395-3E69E4B940BF
-+Name          = RiscvBootProtocolTest
-+Description   = RISC-V Boot Protocol Test
- 
- [Category Data]
- Revision      = 0x00010000
-@@ -1039,3 +1074,10 @@ CategoryGuid  = 607f766c-7455-42be-930b-e4d76db2720f
+@@ -1039,3 +1046,10 @@ CategoryGuid  = 607f766c-7455-42be-930b-e4d76db2720f
  InterfaceGuid = 607f766c-7455-42be-930b-e4d76db2720f
  Name          = TCG2ProtocolTest
  Description   = TCG2 Protocol Test
